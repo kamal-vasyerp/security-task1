@@ -13,12 +13,12 @@ public class SecurityController {
 
 	@GetMapping("/admin/dashboard")
 	public ResponseEntity<String> hellomethod(){
-		return ResponseEntity.ok("Hello To all.");
+		return ResponseEntity.ok("Admin Page");
 	}
 	
 	@GetMapping("/user/dashboard")
 	public ResponseEntity<String> byemethod(){
-		return ResponseEntity.ok("Bye to all.");
+		return ResponseEntity.ok("User Page");
 	}
 	
 }

@@ -1,6 +1,5 @@
 package com.practise.securitytask.config;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,9 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+
+import com.practise.securitytask.constants.RoleConstant;
 
 @Configuration
 @EnableWebSecurity
@@ -39,8 +35,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 		http.authorizeHttpRequests(request -> {
 			request
-			.requestMatchers("/security/api/v1/admin/dashboard").hasRole("ADMIN")
-			.requestMatchers("/security/api/v1/user/dashboard").hasAnyRole("ADMIN","USER")
+			.requestMatchers("/security/api/v1/admin/dashboard").hasRole(RoleConstant.ADMIN)
+			.requestMatchers("/security/api/v1/user/dashboard").hasAnyRole(RoleConstant.ADMIN,RoleConstant.USER)
 			.anyRequest().authenticated();
 		})
 		.httpBasic(Customizer.withDefaults())
@@ -71,23 +67,7 @@ public class SecurityConfig {
 	
 	@Bean
 	AuthenticationSuccessHandler authenticationSuccessHandler() {
-		return new CustomAuthenticationSuccessHandler();
-	}
-	
-	private static class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-		@Override
-		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-				Authentication authentication) throws IOException, ServletException {
-			if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-				response.sendRedirect("/security/api/v1/admin/dashboard");
-			}else if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
-				response.sendRedirect("/security/api/v1/user/dashboard");
-			}else {
-				response.sendError(420);
-			}
-		}
-		
+		return new CustomSuccessHandler();
 	}
 
 }
